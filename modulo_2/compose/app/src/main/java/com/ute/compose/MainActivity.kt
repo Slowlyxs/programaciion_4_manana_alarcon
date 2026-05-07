@@ -5,7 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import com.tuapp.compose.ui.*
+import com.ute.compose.ui.material3.Ejercicoenclase01
+import com.ute.compose.ui.material3.Paso01SumaScreen
 import com.ute.compose.ui.material3.Paso01_TextFieldScreen
+import com.ute.compose.ui.material3.Paso02_CardScreen
+import com.ute.compose.ui.material3.Paso03_LazyColumnScreen
+import com.ute.compose.ui.material3.Paso04_ScaffoldScreen
+import com.ute.compose.ui.material3.Paso05_NavBarScreen
+import com.ute.compose.ui.material3.Paso06_DialogosScreen
 import com.ute.compose.ui.screns.S05_ModifierScreen
 import com.ute.compose.ui.screns.S06_EstadoScreen
 import com.ute.compose.ui.screns.S07_StateHoistingScreen
@@ -26,12 +33,14 @@ class MainActivity : ComponentActivity() {
                  //S07_StateHoistingScreen()
                 //S08_BienvenidaScreen()
                 // ◀ Componentes material 3 :
-                 Paso01_TextFieldScreen()
-                // Paso02_CardScreen()
-                // Paso03_LazyColumnScreen()
-                // Paso04_ScaffoldScreen()
-                // Paso05_NavBarScreen()
-                //Paso06_DialogosScreen()   // ← paso activo
+                 //Paso01_TextFieldScreen()
+                //Ejercicoenclase01()
+                //Paso01SumaScreen()
+                 //Paso02_CardScreen()
+                 //Paso03_LazyColumnScreen()
+                 //Paso04_ScaffoldScreen()
+                 //Paso05_NavBarScreen()
+                Paso06_DialogosScreen()   // ← paso activo
             }
         }
     }
