@@ -1,14 +1,17 @@
 fun main() {
-  println("Controles de Flujo When")
-  println("Escriba codigo para el laboratorio")
-  val codigo = readLine()?.toIntOrNull()?:0
-  val muestra = when(codigo){
-    1->"Sangre venosa (4h)"
-    2->"Orina(2h)"
-    3->"Heces(24h)"
-    4->"Hispoado nasofaringeo(6h)"
-    5->"Biopsia (72)"
-    else -> "Verifique nuevamente la especialidad solicitado"
-}
-println("Tipo de muestra y tiempo: $muestra")
+    println("Sistema de Aeropuerto - Control de Vuelos")
+    println("Ingrese el código del vuelo:")
+
+    val codigo = readLine()?.toIntOrNull() ?: 0
+
+    val vuelo = when (codigo) {
+        1 -> "Vuelo nacional - Embarque inmediato (1h)"
+        2 -> "Vuelo internacional - Control migratorio (3h)"
+        3 -> "Vuelo con escala - Tiempo estimado (5h)"
+        4 -> "Vuelo retrasado - Nueva salida (6h)"
+        5 -> "Vuelo cancelado - Reprogramación necesaria"
+        else -> "Código no válido, verifique su vuelo"
+    }
+
+    println("Estado del vuelo: $vuelo")
 }

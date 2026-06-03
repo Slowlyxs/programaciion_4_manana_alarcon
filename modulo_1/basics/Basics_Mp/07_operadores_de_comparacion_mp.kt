@@ -8,4 +8,4 @@ fun main() {
     println("Economica tiene menos o igual de pasajeros que VIP? ${pasajerosEconomica <= pasajerosVIP}")
     println("Economica tiene mas pasajeros que VIP? ${pasajerosEconomica > pasajerosVIP}")
     println("Economica tiene mas o igual de pasajeros que VIP? ${pasajerosEconomica >= pasajerosVIP}")
-}g
+}

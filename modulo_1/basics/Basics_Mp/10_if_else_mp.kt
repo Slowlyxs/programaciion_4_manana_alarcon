@@ -4,10 +4,17 @@ fun main() {
     println("Controles de flujo")
     println("Condicional If - Else")
 
-    println("Tiene vuelo s/n: ")
+    print("¿Tiene vuelo? (s/n): ")
     val tieneVuelo = readLine()?.trim()?.lowercase() == "s"
-    println("Costo Base: ")
-    val costoBase = readLine()?.toDoubleOrNull() ?: 0.0
+
+    print("Costo Base: ")
+    val costoBase = readLine()?.toDoubleOrNull()
+
+    if (costoBase == null) {
+        println("Error: debes ingresar un número válido.")
+        return
+    }
+
     if (tieneVuelo) {
         val cobertura = costoBase * 0.80
         println("Su seguro de viaje cubre: $${"%.2f".format(cobertura)}")

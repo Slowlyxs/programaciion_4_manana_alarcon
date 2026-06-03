@@ -1,6 +1,6 @@
 
 fun main() {
-    val vuelo = 001
+    val vuelo = 1
     val origen = "Ecuador"
     val destino = "Peru"
     val precio = 70.50

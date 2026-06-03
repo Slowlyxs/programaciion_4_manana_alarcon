@@ -1,27 +1,30 @@
 fun main() {
-    println("Ejercicio de aeropuertos")
-    println("Funciones")
-    println(mensajeAeropuerto())
-    val pasajeros:Int = sumarPasajeros(120,80)
-    println(pasajeros)
-    println("${restarEquipaje(50,20)}")
-    println(restarEquipaje(50,20))
-    println(restarAsientos(200,35))
-    saludarPasajero("Carlos")
+    println("Sistema de Aeropuerto - Funciones")
+
+    println(mensajeBienvenida())
+
+    val totalEquipaje = sumarMaletas(5, 4)
+    println("Total de maletas: $totalEquipaje")
+
+    println("Diferencia de pasajeros: ${diferenciaPasajeros(120, 80)}")
+    println(diferenciaPasajeros(120, 80))
+    println(diferenciaInferida(200, 150))
+
+    registrarPasajero("Pedro")
 }
 
-fun sumarPasajeros(a:Int,b:Int):Int{
-    return a+b
+fun sumarMaletas(a: Int, b: Int): Int {
+    return a + b
 }
 
-fun mensajeAeropuerto():String{
-    return "Vuelo listo para despegar"
+fun mensajeBienvenida(): String {
+    return "Bienvenido al sistema del aeropuerto"
 }
 
-fun restarEquipaje(a:Int,b:Int)=a-b
+fun diferenciaPasajeros(a: Int, b: Int) = a - b
 
-fun restarAsientos(a:Int,b:Int)=a-b
+fun diferenciaInferida(a: Int, b: Int) = a - b
 
-fun saludarPasajero(nombre:String){
-    println("Bienvenido $nombre")
+fun registrarPasajero(nombre: String) {
+    println("Pasajero registrado: $nombre")
 }
