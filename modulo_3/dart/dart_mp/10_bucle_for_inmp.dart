@@ -1,18 +1,17 @@
 void main() {
   final protocolos = ['HTTP', 'HTTPS', 'FTP', 'SSH', 'SMTP'];
 
-  // for-in — la forma idiomática para recorrer listas
-  for (final protocolo in protocolos) {
-    print(protocolo);
+  for (final p in protocolos) {
+    print(p);
   }
 
-  // forEach con lambda — alternativa funcional
-  protocolos.forEach((p) => print(p.toLowerCase()));
+  for (final p in protocolos) {
+    print(p.toLowerCase());
+  }
 
-  // for-in sobre un Map
   final puertos = {'HTTP': 80, 'HTTPS': 443, 'SSH': 22, 'FTP': 21};
-  for (final entrada in puertos.entries) {
-    print('${entrada.key} → puerto ${entrada.value}');
-  }
 
+  for (final e in puertos.entries) {
+    print('${e.key} → puerto ${e.value}');
+  }
 }
