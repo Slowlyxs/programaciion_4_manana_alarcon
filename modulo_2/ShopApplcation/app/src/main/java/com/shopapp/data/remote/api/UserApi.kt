@@ -1,24 +1,34 @@
 // data/remote/api/UserApi.kt
 package com.shopapp.data.remote.api
 
-import com.shopapp.data.remote.dto.*
+import com.shopapp.data.remote.dto.PaginatedDto
+import com.shopapp.data.remote.dto.ToggleActiveResponseDto
+import com.shopapp.data.remote.dto.UserDto
+import com.shopapp.data.remote.dto.UserRequestDto
+import com.shopapp.data.remote.dto.UserStatsDto
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
 
 interface UserApi {
+
     @GET("users/")
     suspend fun getUsers(
-        @Query("search")    search:   String?  = null,
-        @Query("is_staff")  isStaff:  Boolean? = null,
+        @Query("search") search: String? = null,
+        @Query("is_staff") isStaff: Boolean? = null,
         @Query("is_active") isActive: Boolean? = null,
-        @Query("page")      page:     Int?     = null,
+        @Query("page") page: Int? = null,
     ): Response<PaginatedDto<UserDto>>
 
     @GET("users/{id}/")
-    suspend fun getUser(@Path("id") id: Int): Response<UserDto>
+    suspend fun getUser(
+        @Path("id") id: Int,
+    ): Response<UserDto>
 
     @POST("users/")
-    suspend fun createUser(@Body body: UserRequestDto): Response<UserDto>
+    suspend fun createUser(
+        @Body body: UserRequestDto,
+    ): Response<UserDto>
 
     @PATCH("users/{id}/")
     suspend fun updateUser(
@@ -27,13 +37,33 @@ interface UserApi {
     ): Response<UserDto>
 
     @DELETE("users/{id}/")
-    suspend fun deleteUser(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteUser(
+        @Path("id") id: Int,
+    ): Response<Unit>
 
     @POST("users/{id}/toggle-active/")
-    suspend fun toggleActive(@Path("id") id: Int): Response<ToggleActiveResponseDto>
+    suspend fun toggleActive(
+        @Path("id") id: Int,
+    ): Response<ToggleActiveResponseDto>
 
+    /**
+     * Obtiene el perfil del usuario autenticado.
+     * Backend: GET /api/users/profile/
+     */
     @GET("users/profile/")
     suspend fun getProfile(): Response<UserDto>
+
+    /**
+     * Sube o reemplaza el avatar del usuario autenticado.
+     * Backend: PATCH /api/users/profile/
+     * Content-Type: multipart/form-data
+     * Campo: avatar
+     */
+    @Multipart
+    @PATCH("users/profile/")
+    suspend fun uploadAvatar(
+        @Part avatar: MultipartBody.Part,
+    ): Response<UserDto>
 
     @GET("users/stats/")
     suspend fun getStats(): Response<UserStatsDto>
