@@ -22,8 +22,9 @@ import com.shopapp.theme.*
 
 @Composable
 fun LoginScreen(
-    onLoginSuccess:  (isStaff: Boolean) -> Unit,
+    onLoginSuccess: (isStaff: Boolean) -> Unit,
     onNavigateToRegister: () -> Unit,
+    onForgotPassword: () -> Unit = {},
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -40,7 +41,7 @@ fun LoginScreen(
     }
 
     val isLoading = uiState is AuthUiState.Loading
-    val errorMsg  = (uiState as? AuthUiState.Error)?.message
+    val errorMsg = (uiState as? AuthUiState.Error)?.message
 
     Box(
         modifier = Modifier
@@ -57,14 +58,14 @@ fun LoginScreen(
         ) {
             // Logo
             Text(
-                text       = "ShopApp",
-                fontSize   = 36.sp,
+                text = "ShopApp",
+                fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
-                color      = Accent,
+                color = Accent,
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text  = "Inicia sesión en tu cuenta",
+                text = "Inicia sesión en tu cuenta",
                 color = TextSecondary,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -72,24 +73,24 @@ fun LoginScreen(
 
             // Card del formulario
             Surface(
-                shape            = MaterialTheme.shapes.large,
-                color            = Surface,
-                tonalElevation   = 0.dp,
-                modifier         = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                color = Surface,
+                tonalElevation = 0.dp,
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(modifier = Modifier.padding(24.dp)) {
 
                     // Error general
                     if (errorMsg != null) {
                         Surface(
-                            color  = Error.copy(alpha = 0.1f),
-                            shape  = MaterialTheme.shapes.small,
+                            color = Error.copy(alpha = 0.1f),
+                            shape = MaterialTheme.shapes.small,
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text(
-                                text     = errorMsg,
-                                color    = Error,
-                                style    = MaterialTheme.typography.bodySmall,
+                                text = errorMsg,
+                                color = Error,
+                                style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(12.dp),
                             )
                         }
@@ -98,35 +99,45 @@ fun LoginScreen(
 
                     // Campo usuario
                     ShopTextField(
-                        value         = username,
+                        value = username,
                         onValueChange = { username = it; viewModel.clearError() },
-                        label         = "Usuario",
-                        placeholder   = "tu_usuario",
-                        enabled       = !isLoading,
-                        imeAction     = ImeAction.Next,
+                        label = "Usuario",
+                        placeholder = "tu_usuario",
+                        enabled = !isLoading,
+                        imeAction = ImeAction.Next,
                     )
                     Spacer(Modifier.height(16.dp))
 
                     // Campo contraseña
                     ShopTextField(
-                        value         = password,
+                        value = password,
                         onValueChange = { password = it; viewModel.clearError() },
-                        label         = "Contraseña",
-                        placeholder   = "••••••••",
-                        isPassword    = true,
-                        enabled       = !isLoading,
-                        keyboardType  = KeyboardType.Password,
-                        imeAction     = ImeAction.Done,
+                        label = "Contraseña",
+                        placeholder = "••••••••",
+                        isPassword = true,
+                        enabled = !isLoading,
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done,
                     )
                     Spacer(Modifier.height(24.dp))
 
-                    // Botón
+                    // Botón de Iniciar Sesión
                     ShopButton(
-                        text      = "Iniciar sesión",
-                        onClick   = { viewModel.login(username, password) },
+                        text = "Iniciar sesión",
+                        onClick = { viewModel.login(username, password) },
                         isLoading = isLoading,
-                        enabled   = username.isNotBlank() && password.isNotBlank(),
+                        enabled = username.isNotBlank() && password.isNotBlank(),
                     )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // Botón ¿Olvidaste tu contraseña?
+                    TextButton(
+                        onClick = onForgotPassword,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    ) {
+                        Text("¿Olvidaste tu contraseña?")
+                    }
                 }
             }
 
@@ -135,13 +146,13 @@ fun LoginScreen(
             // Link a registro
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text  = "¿No tienes cuenta? ",
+                    text = "¿No tienes cuenta? ",
                     color = TextSecondary,
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 TextButton(onClick = onNavigateToRegister) {
                     Text(
-                        text  = "Regístrate",
+                        text = "Regístrate",
                         color = Accent,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
