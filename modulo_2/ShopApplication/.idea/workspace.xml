@@ -5,18 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f32c83ea-1a27-47c9-9ec8-fa703dc37601" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/ui/auth/ForgotPasswordScreen.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/ui/auth/ResetPasswordConfirmScreen.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/viewmodel/ForgotPasswordViewModel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/viewmodel/ResetPasswordConfirmViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/domain/model/NotificationResult.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/ui/admin/users/SendNotificationScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/viewmodel/SendNotificationViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/remote/api/AuthApi.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/remote/api/AuthApi.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/remote/dto/AuthDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/remote/dto/AuthDto.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/repository/AuthRepositoryImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/repository/AuthRepositoryImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/domain/repository/AuthRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/domain/repository/AuthRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/remote/api/UserApi.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/remote/api/UserApi.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/remote/dto/UserDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/remote/dto/UserDto.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/repository/UserRepositoryImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/data/repository/UserRepositoryImpl.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/domain/repository/UserRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/domain/repository/UserRepository.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/navigation/NavGraph.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/navigation/NavGraph.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/navigation/Screen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/navigation/Screen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/ui/auth/LoginScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/ui/auth/LoginScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/ui/client/profile/ProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/shopapp/presentation/ui/client/profile/ProfileScreen.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

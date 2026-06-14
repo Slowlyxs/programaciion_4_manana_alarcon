@@ -17,6 +17,7 @@ import com.shopapp.presentation.ui.admin.dashboard.DashboardScreen
 import com.shopapp.presentation.ui.admin.orders.OrderAdminDetailScreen
 import com.shopapp.presentation.ui.admin.orders.OrdersAdminScreen
 import com.shopapp.presentation.ui.admin.products.ProductsAdminScreen
+import com.shopapp.presentation.ui.admin.users.SendNotificationScreen
 import com.shopapp.presentation.ui.admin.users.UsersAdminScreen
 import com.shopapp.presentation.ui.auth.ForgotPasswordScreen
 import com.shopapp.presentation.ui.auth.LoginScreen
@@ -214,18 +215,18 @@ fun NavGraph(
             composable(Screen.Profile.route) {
                 if (!isAuthenticated) {
                     LaunchedEffect(Unit) {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(Screen.Home.route)
-                        }
+                        navController.navigate(Screen.Login.route) { popUpTo(Screen.Home.route) }
                     }
                 } else {
                     ProfileScreen(
                         authViewModel = authViewModel,
                         onLogout = {
+                            authViewModel.logout()
                             navController.navigate(Screen.Login.route) {
                                 popUpTo(0) { inclusive = true }
                             }
                         },
+                        onSendNotification = { navController.navigate(Screen.SendNotification.route) }
                     )
                 }
             }
@@ -323,6 +324,18 @@ fun NavGraph(
                         ProductsAdminScreen()
                     }
                 }
+            }
+            // ── Notificaciones de staff ───────────────────────────────────────────────────
+            composable(Screen.SendNotification.route) {
+                if (!isStaff) {
+                    LaunchedEffect(Unit) {
+                        navController.popBackStack()
+                    }
+                    return@composable
+                }
+                SendNotificationScreen(
+                    onBack = { navController.popBackStack() },
+                )
             }
 
             // ── ADMIN ORDERS ───────────────────────

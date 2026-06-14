@@ -29,4 +29,5 @@ sealed class Screen(val route: String) {
     data object AdminProducts   : Screen("admin/products")
     data object AdminOrders     : Screen("admin/orders")
     data object AdminUsers      : Screen("admin/users")
+    data object SendNotification : Screen("send-notification")
 }
