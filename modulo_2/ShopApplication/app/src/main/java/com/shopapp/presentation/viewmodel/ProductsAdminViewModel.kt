@@ -171,6 +171,25 @@ class ProductsAdminViewModel @Inject constructor(
         }
     }
 
+
+    fun uploadProductImage(productId: Int, uri: android.net.Uri) {
+        _formState.value = ProductFormState.Saving
+        viewModelScope.launch {
+            repository.uploadProductImage(productId, uri)
+                .onSuccess { newImageUrl ->
+                    _state.update { s ->
+                        s.copy(products = s.products.map {
+                            if (it.id == productId) it.copy(imageUrl = newImageUrl) else it
+                        })
+                    }
+                    _formState.value = ProductFormState.Success("Imagen actualizada")
+                }
+                .onFailure { e ->
+                    _formState.value = ProductFormState.Error(e.message ?: "Error al subir imagen")
+                }
+        }
+    }
+
     fun restock(id: Int, quantity: Int, onResult: (String) -> Unit) {
         viewModelScope.launch {
             repository.restock(id, quantity)

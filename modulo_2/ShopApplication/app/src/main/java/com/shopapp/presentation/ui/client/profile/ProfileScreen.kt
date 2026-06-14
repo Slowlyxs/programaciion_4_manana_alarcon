@@ -17,13 +17,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shopapp.presentation.viewmodel.AuthViewModel
 import com.shopapp.theme.*
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.shopapp.presentation.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
     authViewModel: AuthViewModel,
     onLogout:      () -> Unit,
+    profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val user by authViewModel.currentUser.collectAsState()
+    val profileState by profileViewModel.state.collectAsState()
 
     Column(
         modifier = Modifier
@@ -39,24 +43,13 @@ fun ProfileScreen(
                 .padding(vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(
-                modifier         = Modifier
-                    .size(80.dp)
-                    .background(
-                        brush = androidx.compose.ui.graphics.Brush.linearGradient(
-                            listOf(Accent, AccentLight),
-                        ),
-                        shape = CircleShape,
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text       = user?.username?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                    fontSize   = 36.sp,
-                    fontWeight = FontWeight.Bold,
-                    color      = AccentOnDark,
-                )
-            }
+            AvatarSection(
+                avatarUrl       = profileState.avatarUrl,
+                username        = user?.username ?: "?",
+                isUploading     = profileState.isUploading,
+                onImageSelected = { uri -> profileViewModel.uploadAvatar(uri) },
+            )
+
             Spacer(Modifier.height(16.dp))
             Text(
                 text       = user?.username ?: "—",
