@@ -1,0 +1,4 @@
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.3.0
