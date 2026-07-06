@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_shop_app/presentation/screens/cart/cart_screen.dart';
 import 'package:flutter_shop_app/presentation/screens/catalog/productdetailscreen.dart';
+import 'package:flutter_shop_app/presentation/screens/orders/orderdetailscreen.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/model/auth_state.dart';
 import '../providers/auth_provider.dart';
@@ -12,6 +13,10 @@ import '../screens/auth/register_screen.dart';
 import '../screens/catalog/catalog_screen.dart';
 import '../screens/catalog/home_screen.dart';
 import 'public_shell.dart';
+
+// Nuevos imports agregados
+import '../screens/orders/orders_screen.dart';
+import '../screens/auth/profile_screen.dart';
 
 class _PlaceholderScreen extends ConsumerWidget {
   final String title;
@@ -27,7 +32,6 @@ class _PlaceholderScreen extends ConsumerWidget {
             tooltip: 'Cerrar sesión',
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              // Cerrar sesión y volver al login
               await ref.read(authProvider.notifier).logout();
               context.go('/login');
             },
@@ -55,8 +59,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isAuthRoute = location == '/login' || location == '/register';
 
       if (!auth.isAuthenticated && !isAuthRoute) return '/login';
-      if (auth.isAuthenticated && isAuthRoute)
+      if (auth.isAuthenticated && isAuthRoute) {
         return auth.isStaff ? '/admin' : '/';
+      }
       if (auth.isAuthenticated &&
           !auth.isStaff &&
           location.startsWith('/admin')) return '/';
@@ -73,9 +78,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, __, child) => PublicShell(child: child),
         routes: [
           GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
-          GoRoute(path: '/catalog', builder: (_, __) => const CatalogScreen()),
-          GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
-          GoRoute(path: '/catalog', builder: (_, __) => const CatalogScreen()),
+
+          // Catálogo y sub-ruta de detalle de producto
           GoRoute(
             path: '/catalog',
             builder: (_, __) => const CatalogScreen(),
@@ -89,28 +93,35 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+
+          // Carrito de compras real
           GoRoute(
             path: '/cart',
             builder: (_, __) => const CartScreen(),
           ),
+
+          // Manteniendo el placeholder alternativo de detalle de producto por si se usa en otra sección
           GoRoute(
             path: '/product/:id',
             builder: (_, s) =>
                 _PlaceholderScreen('Detalle #${s.pathParameters['id']} — M5'),
           ),
+
+          // Pantallas reales agregadas de Órdenes y Perfil
           GoRoute(
-              path: '/cart',
-              builder: (_, __) => const _PlaceholderScreen('Carrito — M5')),
+            path: '/orders',
+            builder: (_, __) => const OrdersScreen(),
+          ),
           GoRoute(
-              path: '/orders',
-              builder: (_, __) => const _PlaceholderScreen('Mis pedidos — M6')),
+            path: '/orders/:id',
+            builder: (_, s) => OrderDetailScreen(
+              orderId: int.parse(s.pathParameters['id']!),
+            ),
+          ),
           GoRoute(
-              path: '/orders/:id',
-              builder: (_, s) =>
-                  _PlaceholderScreen('Pedido #${s.pathParameters['id']} — M6')),
-          GoRoute(
-              path: '/profile',
-              builder: (_, __) => const _PlaceholderScreen('Perfil — M6')),
+            path: '/profile',
+            builder: (_, __) => const ProfileScreen(),
+          ),
         ],
       ),
 
