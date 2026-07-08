@@ -10,6 +10,7 @@ class User {
   final bool isActive;
   final String dateJoined;
   final int numOrders;
+  final String? avatarUrl;
 
   const User({
     required this.id,
@@ -21,6 +22,7 @@ class User {
     required this.isActive,
     required this.dateJoined,
     required this.numOrders,
+    this.avatarUrl,
   });
 
   factory User.fromJson(Map<String, dynamic> j) => User(
@@ -33,6 +35,7 @@ class User {
         isActive: j['is_active'] as bool,
         dateJoined: j['date_joined'] as String,
         numOrders: j['num_orders'] as int,
+        avatarUrl: j['avatar_url'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -42,6 +45,7 @@ class User {
         'last_name': lastName,
         'is_staff': isStaff,
         'is_active': isActive,
+        'avatar_url': avatarUrl,
       };
 
   User copyWith({bool? isStaff, bool? isActive}) => User(
@@ -54,5 +58,6 @@ class User {
         isActive: isActive ?? this.isActive,
         dateJoined: dateJoined,
         numOrders: numOrders,
+        avatarUrl: avatarUrl,
       );
 }

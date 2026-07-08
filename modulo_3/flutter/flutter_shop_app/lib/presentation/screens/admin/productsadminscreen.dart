@@ -1,8 +1,8 @@
 // lib/presentation/screens/admin/products_admin_screen.dart
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_shop_app/presentation/providers/imageuploadprovider.dart';
 import 'package:flutter_shop_app/presentation/providers/productsadminprovider.dart';
 import '../../../theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
@@ -10,6 +10,7 @@ import '../../../data/repository/category_repository_impl.dart';
 import '../../../domain/model/category.dart';
 import '../../../domain/model/product.dart';
 import '../../widgets/product_form.dart';
+import '../../widgets/product_image.dart';
 import '../../widgets/restock_dialog.dart';
 
 class ProductsAdminScreen extends ConsumerStatefulWidget {
@@ -22,6 +23,7 @@ class ProductsAdminScreen extends ConsumerStatefulWidget {
 
 class _ProductsAdminScreenState extends ConsumerState<ProductsAdminScreen> {
   List<Category> _categories = [];
+  int? _uploadingProductId; // Rastrea qué producto está subiendo
 
   @override
   void initState() {
@@ -35,6 +37,28 @@ class _ProductsAdminScreenState extends ConsumerState<ProductsAdminScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(productsAdminProvider);
     final filtered = state.filtered;
+    final uploadState = ref.watch(imageUploadProvider);
+
+    // Escuchar el estado de la subida de imágenes de productos
+    ref.listen<ImageUploadState>(imageUploadProvider, (_, next) {
+      if (next is ImageUploadSuccess) {
+        setState(() => _uploadingProductId = null);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Imagen del producto actualizada.')),
+        );
+        ref.read(productsAdminProvider.notifier).load(); // Recarga lista
+        ref.read(imageUploadProvider.notifier).reset();
+      } else if (next is ImageUploadError) {
+        setState(() => _uploadingProductId = null);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.message),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        ref.read(imageUploadProvider.notifier).reset();
+      }
+    });
 
     return Column(
       children: [
@@ -171,6 +195,14 @@ class _ProductsAdminScreenState extends ConsumerState<ProductsAdminScreen> {
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (_, i) => _ProductAdminCard(
                 product: filtered[i],
+                isUploadingImage: uploadState is ImageUploadLoading &&
+                    _uploadingProductId == filtered[i].id,
+                onUploadImage: () {
+                  setState(() => _uploadingProductId = filtered[i].id);
+                  ref
+                      .read(imageUploadProvider.notifier)
+                      .pickAndUploadProductImage(filtered[i].id);
+                },
                 onToggle: () => ref
                     .read(productsAdminProvider.notifier)
                     .toggleActive(filtered[i].id, !filtered[i].isActive),
@@ -245,6 +277,8 @@ class _ProductsAdminScreenState extends ConsumerState<ProductsAdminScreen> {
 
 class _ProductAdminCard extends StatelessWidget {
   final Product product;
+  final bool isUploadingImage;
+  final VoidCallback onUploadImage;
   final VoidCallback onToggle;
   final VoidCallback onEdit;
   final VoidCallback onRestock;
@@ -252,6 +286,8 @@ class _ProductAdminCard extends StatelessWidget {
 
   const _ProductAdminCard({
     required this.product,
+    required this.isUploadingImage,
+    required this.onUploadImage,
     required this.onToggle,
     required this.onEdit,
     required this.onRestock,
@@ -276,27 +312,54 @@ class _ProductAdminCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Imagen
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: SizedBox(
-                  width: 54,
-                  height: 54,
-                  child: product.imageUrl != null
-                      ? CachedNetworkImage(
-                          imageUrl: product.imageUrl!,
-                          fit: BoxFit.cover,
-                          errorWidget: (_, __, ___) => Container(
-                            color: AppColors.surface2,
-                            child: const Center(child: Text('📦')),
-                          ),
-                        )
-                      : Container(
-                          color: AppColors.surface2,
-                          child: const Center(
-                            child: Text('📦', style: TextStyle(fontSize: 22)),
+              // Thumbnail con Stack, ProductImage y botón de cámara interactivo
+              SizedBox(
+                width: 54,
+                height: 54,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ProductImage(
+                      imageUrl: product.imageUrl,
+                      width: 54,
+                      height: 54,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    if (isUploadingImage)
+                      const ColoredBox(
+                        color: Colors.black38,
+                        child: Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
+                      )
+                    else
+                      Positioned(
+                        bottom: 2,
+                        right: 2,
+                        child: GestureDetector(
+                          onTap: onUploadImage,
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              color: AppColors.accent,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.photo_camera,
+                              size: 10,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               const SizedBox(width: 12),

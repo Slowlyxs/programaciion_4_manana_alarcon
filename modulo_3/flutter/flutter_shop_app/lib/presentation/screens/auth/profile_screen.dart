@@ -2,17 +2,55 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_shop_app/presentation/providers/imageuploadprovider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/profile_provider.dart';
+import '../../widgets/user_avatar.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  String? _avatarCacheBuster;
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
+    final profileAsync = ref.watch(profileProvider);
+    final uploadState = ref.watch(imageUploadProvider);
     final tt = Theme.of(context).textTheme;
+
+    // Escuchar el estado de la subida del avatar
+    ref.listen<ImageUploadState>(imageUploadProvider, (_, next) {
+      if (next is ImageUploadSuccess) {
+        setState(() {
+          _avatarCacheBuster = '?t=${DateTime.now().millisecondsSinceEpoch}';
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Avatar actualizado correctamente.')),
+        );
+        ref.invalidate(profileProvider);
+        ref.read(imageUploadProvider.notifier).reset();
+      } else if (next is ImageUploadError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.message),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        ref.read(imageUploadProvider.notifier).reset();
+      }
+    });
+
+    final avatarUrl = profileAsync.valueOrNull?.avatarUrl;
+    final avatarUrlWithCacheBust =
+        avatarUrl == null ? null : '$avatarUrl${_avatarCacheBuster ?? ''}';
 
     return Scaffold(
       body: SafeArea(
@@ -22,30 +60,23 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               const SizedBox(height: 24),
 
-              // Avatar
-              Container(
-                width: 80,
-                height: 80,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.accent, AppColors.accentLight],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              // Avatar con tap para cambiar e indicador de carga
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  UserAvatar(
+                    avatarUrl: avatarUrlWithCacheBust,
+                    username: user?.username,
+                    radius: 40,
+                    onTap: uploadState is ImageUploadLoading
+                        ? null
+                        : () => ref
+                            .read(imageUploadProvider.notifier)
+                            .pickAndUploadAvatar(),
                   ),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    (user?.username.isNotEmpty == true)
-                        ? user!.username[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                      color: AppColors.onAccent,
-                      fontSize: 34,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                  if (uploadState is ImageUploadLoading)
+                    const CircularProgressIndicator(color: AppColors.accent),
+                ],
               ),
               const SizedBox(height: 16),
               Text(user?.username ?? '—', style: tt.headlineMedium),
@@ -71,7 +102,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               const SizedBox(height: 32),
 
-              // Info
+              // Información de la cuenta
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -172,7 +203,7 @@ class _LogoutButton extends StatelessWidget {
         child: OutlinedButton.icon(
           onPressed: () => showDialog(
             context: context,
-            builder: (_) => AlertDialog(
+            builder: (dialogContext) => AlertDialog(
               backgroundColor: AppColors.surface,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
@@ -184,12 +215,13 @@ class _LogoutButton extends StatelessWidget {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(dialogContext),
                   child: const Text('Cancelar'),
                 ),
                 TextButton(
                   onPressed: () async {
-                    Navigator.pop(context);
+                    Navigator.of(dialogContext).pop();
+                    await Future.delayed(const Duration(milliseconds: 100));
                     await onConfirm();
                   },
                   child: const Text(
