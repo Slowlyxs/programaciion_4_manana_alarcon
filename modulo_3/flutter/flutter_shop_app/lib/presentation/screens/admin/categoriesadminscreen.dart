@@ -7,11 +7,36 @@ import '../../../theme/app_colors.dart';
 import '../../../domain/model/category.dart';
 import '../../widgets/category_form.dart';
 
-class CategoriesAdminScreen extends ConsumerWidget {
+class CategoriesAdminScreen extends ConsumerStatefulWidget {
   const CategoriesAdminScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CategoriesAdminScreen> createState() =>
+      _CategoriesAdminScreenState();
+}
+
+class _CategoriesAdminScreenState extends ConsumerState<CategoriesAdminScreen> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        ref.read(categoriesAdminProvider.notifier).loadMore();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(categoriesAdminProvider);
     final filtered = state.filtered;
 
@@ -36,7 +61,7 @@ class CategoriesAdminScreen extends ConsumerWidget {
                             fontWeight: FontWeight.bold,
                           )),
                       Text(
-                        '${state.categories.length} categorías',
+                        '${state.total} categorías',
                         style: const TextStyle(
                             color: AppColors.textSecondary, fontSize: 13),
                       ),
@@ -73,12 +98,12 @@ class CategoriesAdminScreen extends ConsumerWidget {
         // ── Contenido ──────────────────────────────────────
         Expanded(
           child: Builder(builder: (_) {
-            if (state.isLoading) {
+            if (state.isLoading && state.categories.isEmpty) {
               return const Center(
                 child: CircularProgressIndicator(color: AppColors.accent),
               );
             }
-            if (state.error != null) {
+            if (state.error != null && state.categories.isEmpty) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -118,18 +143,30 @@ class CategoriesAdminScreen extends ConsumerWidget {
             }
 
             return ListView.separated(
+              controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              itemCount: filtered.length,
+              itemCount: filtered.length + (state.isLoadingMore ? 1 : 0),
               separatorBuilder: (_, __) => const SizedBox(height: 10),
-              itemBuilder: (_, i) => _CategoryCard(
-                category: filtered[i],
-                onToggle: () => ref
-                    .read(categoriesAdminProvider.notifier)
-                    .toggleActive(filtered[i].id, !filtered[i].isActive),
-                onEdit: () =>
-                    showCategoryForm(context, ref, initial: filtered[i]),
-                onDelete: () => _confirmDelete(context, ref, filtered[i]),
-              ),
+              itemBuilder: (_, i) {
+                if (i >= filtered.length) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: CircularProgressIndicator(color: AppColors.accent),
+                    ),
+                  );
+                }
+
+                return _CategoryCard(
+                  category: filtered[i],
+                  onToggle: () => ref
+                      .read(categoriesAdminProvider.notifier)
+                      .toggleActive(filtered[i].id, !filtered[i].isActive),
+                  onEdit: () =>
+                      showCategoryForm(context, ref, initial: filtered[i]),
+                  onDelete: () => _confirmDelete(context, ref, filtered[i]),
+                );
+              },
             );
           }),
         ),

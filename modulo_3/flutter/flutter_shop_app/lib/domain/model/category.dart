@@ -48,3 +48,24 @@ class Category {
         createdAt: createdAt,
       );
 }
+
+class PaginatedCategories {
+  final int count;
+  final String? next;
+  final List<Category> results;
+
+  const PaginatedCategories({
+    required this.count,
+    required this.next,
+    required this.results,
+  });
+
+  factory PaginatedCategories.fromJson(Map<String, dynamic> j) =>
+      PaginatedCategories(
+        count: j['count'] as int,
+        next: j['next'] as String?,
+        results: (j['results'] as List)
+            .map((e) => Category.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+}
