@@ -128,7 +128,7 @@ class ImageUploadService {
       bytes: bytes,
       filename: filename,
     );
-    return body['image_url'] as String?;
+    return body['image_url'] as String? ?? body['image'] as String?;
   }
 
   /// Sube el avatar del usuario autenticado.
@@ -148,6 +148,6 @@ class ImageUploadService {
       bytes: bytes,
       filename: filename,
     );
-    return body['avatar_url'] as String?;
+    return body['avatar_url'] as String? ?? body['avatar'] as String?;
   }
 }

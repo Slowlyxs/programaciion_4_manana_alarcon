@@ -35,7 +35,7 @@ class User {
         isActive: j['is_active'] as bool,
         dateJoined: j['date_joined'] as String,
         numOrders: j['num_orders'] as int,
-        avatarUrl: j['avatar_url'] as String?,
+        avatarUrl: j['avatar_url'] as String? ?? j['avatar'] as String?,
       );
 
   Map<String, dynamic> toJson() => {

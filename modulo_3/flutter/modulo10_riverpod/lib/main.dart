@@ -1,15 +1,29 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
-// StateProvider — estado simple (int, bool, String, enum)
+// Importa las pantallas a medida que las crees en cada paso:
+import 'screens/pantalla_servidores.dart';
+import 'screens/pantalla_busqueda.dart';
+import 'screens/pantalla_metricas.dart';
+import 'screens/pantalla_dashboard.dart';
+
+// ┌──────────────────────────────────────────────────────────────────┐
+// │  Cambia este número y guarda (Ctrl+S) para navegar entre pasos. │
+// │  1  Paso 1  ProviderScope + StateProvider básico (contador)     │
+// │  2  Paso 2  NotifierProvider + lista de servidores              │
+// │  3  Paso 3  Provider derivado + búsqueda filtrada               │
+// │  4  Paso 4  AsyncNotifierProvider + métricas loading/error      │
+// │  5  Paso 5  NavigationBar con dos tabs usando Riverpod          │
+// └──────────────────────────────────────────────────────────────────┘
+const int paso = 5;
+
+// StateProvider — estado simple del Paso 1
 final contadorProvider = StateProvider<int>((ref) => 0);
 
 void main() {
-  runApp(
-    // ProviderScope: contenedor global, siempre envuelve la app
-    const ProviderScope(child: AppMonitoreo()),
-  );
+  runApp(const ProviderScope(child: AppMonitoreo()));
 }
 
 class AppMonitoreo extends StatelessWidget {
@@ -23,18 +37,25 @@ class AppMonitoreo extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0D47A1)),
         useMaterial3: true,
       ),
-      home: const _PantallaContador(),
+      home: switch (paso) {
+        1 => const _Paso1(),
+        2 => const PantallaServidores(),
+        3 => const PantallaBusqueda(),
+        4 => const PantallaMetricas(),
+        5 => const PantallaDashboard(),
+        _ => Scaffold(
+            body: Center(child: Text('Paso $paso: crea el widget primero'))),
+      },
     );
   }
 }
 
-// ConsumerWidget = StatelessWidget con acceso a providers
-class _PantallaContador extends ConsumerWidget {
-  const _PantallaContador();
+// ─── Paso 1 — vive en main.dart ─────────────────────────────────────────
+class _Paso1 extends ConsumerWidget {
+  const _Paso1();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.watch — lee y se suscribe (reconstruye al cambiar)
     final count = ref.watch(contadorProvider);
 
     return Scaffold(
@@ -53,9 +74,7 @@ class _PantallaContador extends ConsumerWidget {
         children: [
           FloatingActionButton(
             heroTag: 'add',
-            // ref.read — lee SIN suscribirse (para callbacks)
-            onPressed: () =>
-                ref.read(contadorProvider.notifier).state++,
+            onPressed: () => ref.read(contadorProvider.notifier).state++,
             child: const Icon(Icons.add),
           ),
           const SizedBox(height: 8),
