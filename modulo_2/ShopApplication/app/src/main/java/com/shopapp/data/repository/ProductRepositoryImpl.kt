@@ -1,6 +1,12 @@
 // data/repository/ProductRepositoryImpl.kt
 package com.shopapp.data.repository
 
+import android.content.Context
+import android.net.Uri
+import dagger.hilt.android.qualifiers.ApplicationContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import com.shopapp.data.remote.api.ProductApi
 import com.shopapp.data.remote.dto.RestockRequestDto
 import com.shopapp.data.remote.dto.toDomain
@@ -9,12 +15,15 @@ import com.shopapp.domain.model.Product
 import com.shopapp.domain.model.ProductFilters
 import com.shopapp.domain.model.ProductPayload
 import com.shopapp.domain.repository.ProductRepository
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ProductRepositoryImpl @Inject constructor(
     private val api: ProductApi,
+    @ApplicationContext private val context: Context,
 ) : ProductRepository {
 
     override suspend fun getProducts(filters: ProductFilters): Result<Pair<List<Product>, Int>> =
@@ -79,5 +88,51 @@ class ProductRepositoryImpl @Inject constructor(
                 "out_of_stock"   to s.outOfStock,
             )
         } else error("Error ${response.code()}")
+    }
+
+    override suspend fun uploadProductImage(
+        productId: Int,
+        uri: Uri
+    ): Result<String> = runCatching {
+        val file = uriToFile(uri)
+
+        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val imagePart = MultipartBody.Part.createFormData(
+            name = "image",
+            filename = file.name,
+            body = requestFile,
+        )
+
+        val response = api.uploadProductImage(productId, imagePart)
+
+        // Limpiamos el archivo temporal sin importar el resultado
+        file.delete()
+
+        if (response.isSuccessful) {
+            response.body()?.imageUrl
+                ?: error("La respuesta no incluyó la URL de la imagen")
+        } else {
+            error("Error ${response.code()}: ${response.errorBody()?.string()}")
+        }
+    }
+
+    /**
+     * Copia el contenido del Uri (content://...) a un archivo temporal
+     * en el caché de la app, porque Retrofit/OkHttp necesita un File real
+     * para construir el MultipartBody.Part.
+     */
+    private fun uriToFile(uri: Uri): File {
+        val inputStream = context.contentResolver.openInputStream(uri)
+            ?: error("No se pudo abrir el archivo seleccionado")
+
+        val tempFile = File(context.cacheDir, "upload_${System.currentTimeMillis()}.jpg")
+
+        inputStream.use { input ->
+            FileOutputStream(tempFile).use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        return tempFile
     }
 }

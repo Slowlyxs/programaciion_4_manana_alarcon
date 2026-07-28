@@ -15,6 +15,8 @@ data class UserDto(
     @SerializedName("is_active")   val isActive:   Boolean,
     @SerializedName("date_joined") val dateJoined: String,
     @SerializedName("num_orders")  val numOrders:  Int,
+    @SerializedName("avatar_url")  val avatarUrl:  String?,   // ← nuevo
+
 )
 
 data class UserRequestDto(
@@ -39,6 +41,10 @@ data class UserStatsDto(
     val staff:    Int,
 )
 
+// En UserDto.kt, agrega:
+data class AvatarUploadResponseDto(
+    @SerializedName("avatar_url") val avatarUrl: String?,
+)
 // ── Mappers ───────────────────────────────────────────────────
 
 fun UserDto.toDomain() = User(
@@ -51,6 +57,8 @@ fun UserDto.toDomain() = User(
     isActive   = isActive,
     dateJoined = dateJoined,
     numOrders  = numOrders,
+    avatarUrl  = avatarUrl,   // ← nuevo
+
 )
 
 fun UserPayload.toRequest() = UserRequestDto(
