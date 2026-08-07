@@ -193,6 +193,9 @@ fun ProductsAdminScreen(
                 if (editTarget != null) viewModel.updateProduct(editTarget!!.id, payload)
                 else viewModel.createProduct(payload)
             },
+            onUploadImage = { productId, uri ->
+                viewModel.uploadProductImage(productId, uri)
+            },
             onDismiss = {
                 showForm   = false
                 editTarget = null

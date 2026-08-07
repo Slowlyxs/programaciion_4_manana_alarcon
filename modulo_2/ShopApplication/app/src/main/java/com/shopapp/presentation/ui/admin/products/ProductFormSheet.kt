@@ -17,15 +17,28 @@ import com.shopapp.domain.model.ProductPayload
 import com.shopapp.presentation.components.ShopTextField
 import com.shopapp.presentation.viewmodel.ProductFormState
 import com.shopapp.theme.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.background
+
+
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductFormSheet(
-    initial:    Product?,
-    categories: List<Category>,
-    formState:  ProductFormState,
-    onSave:     (ProductPayload) -> Unit,
-    onDismiss:  () -> Unit,
+    initial:        Product?,
+    categories:     List<Category>,
+    formState:      ProductFormState,
+    onSave:         (ProductPayload) -> Unit,
+    onDismiss:      () -> Unit,
+    onUploadImage:  (productId: Int, uri: android.net.Uri) -> Unit = { _, _ -> },
 ) {
     val isEdit = initial != null
 
@@ -36,6 +49,19 @@ fun ProductFormSheet(
     var isActive    by remember { mutableStateOf(initial?.isActive ?: true) }
     var selectedCat by remember { mutableStateOf(initial?.categoryId) }
     var catExpanded by remember { mutableStateOf(false) }
+
+    var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        if (uri != null) {
+            selectedImageUri = uri
+            if (initial != null) {
+                onUploadImage(initial.id, uri)
+            }
+        }
+    }
 
     val isSaving   = formState is ProductFormState.Saving
     val priceVal   = price.toDoubleOrNull()
@@ -70,6 +96,66 @@ fun ProductFormSheet(
                 fontWeight = FontWeight.Bold,
                 color      = TextPrimary,
             )
+
+            // ── Selector de imagen ──────────────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp)
+                    .background(Surface2, RoundedCornerShape(12.dp))
+                    .clickable(enabled = !isSaving) {
+                        imagePickerLauncher.launch(
+                            androidx.activity.result.PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                val previewModel = selectedImageUri ?: initial?.imageUrl
+
+                if (previewModel != null) {
+                    AsyncImage(
+                        model              = previewModel,
+                        contentDescription = "Imagen del producto",
+                        contentScale       = ContentScale.Crop,
+                        modifier           = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp)),
+                    )
+                } else {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            Icons.Default.AddPhotoAlternate,
+                            contentDescription = null,
+                            tint     = TextSecondary,
+                            modifier = Modifier.size(32.dp),
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "Toca para agregar una imagen",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextSecondary,
+                        )
+                    }
+                }
+
+                // Overlay con icono de editar cuando ya hay imagen
+                if (previewModel != null) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(8.dp)
+                            .background(Accent, RoundedCornerShape(50))
+                            .padding(6.dp),
+                    ) {
+                        Icon(
+                            Icons.Default.AddPhotoAlternate,
+                            contentDescription = "Cambiar imagen",
+                            tint     = AccentOnDark,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
+            }
 
             // Error global
             if (formState is ProductFormState.Error) {
