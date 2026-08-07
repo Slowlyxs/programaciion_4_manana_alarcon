@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
-    private val api:            AuthApi,
+    private val api: AuthApi,
     private val tokenDataStore: TokenDataStore,
 ) : AuthRepository {
 
@@ -63,14 +63,44 @@ class AuthRepositoryImpl @Inject constructor(
     // Extrae el mensaje de error legible del JSON de Django
     private fun parseErrorMessage(body: String, code: Int): String {
         return try {
-            val map = com.google.gson.Gson()
-                .fromJson(body, Map::class.java)
+            val map = com.google.gson.Gson().fromJson(body, Map::class.java)
             map["detail"]?.toString()
                 ?: map["non_field_errors"]?.toString()
                 ?: map.values.firstOrNull()?.toString()
                 ?: "Error $code"
         } catch (e: Exception) {
             "Error $code"
+        }
+    }
+
+    override suspend fun requestReset(email: String): Result<String> =
+        runCatching {
+            val response = api.requestPasswordReset(PasswordResetRequestDto(email))
+            if (response.isSuccessful) {
+                response.body()?.detail ?: "Solicitud enviada"
+            } else {
+                error(response.errorBody()?.string() ?: "Error ${response.code()}")
+            }
+        }
+
+    override suspend fun confirmReset(
+        uid: String,
+        token: String,
+        newPassword: String,
+        newPassword2: String,
+    ): Result<String> = runCatching {
+        val response = api.confirmPasswordReset(
+            PasswordResetConfirmDto(
+                uid = uid,
+                token = token,
+                newPassword = newPassword,
+                newPassword2 = newPassword2,
+            )
+        )
+        if (response.isSuccessful) {
+            response.body()?.detail ?: "Contraseña actualizada"
+        } else {
+            error(response.errorBody()?.string() ?: "Error ${response.code()}")
         }
     }
 }

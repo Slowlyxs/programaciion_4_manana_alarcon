@@ -45,4 +45,8 @@ interface UserApi {
     suspend fun uploadAvatar(
         @Part avatar: MultipartBody.Part,
     ): Response<AvatarUploadResponseDto>
+    @POST("emails/send/")
+    suspend fun sendNotification(
+        @Body body: SendNotificationDto,
+    ): Response<NotificationResultDto>
 }
